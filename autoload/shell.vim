@@ -1,4 +1,4 @@
-function! s:print(bang = '')
+function! shell#print(bang = '')
     if a:bang != ''
         return
     endif
@@ -10,7 +10,7 @@ function! s:print(bang = '')
     echo 'set shellxquote   =' &shellxquote
 endfunction
 
-function! s:default()
+function! shell#default()
     set shell        &
     set shellcmdflag &
     set shellredir   &
@@ -19,7 +19,7 @@ function! s:default()
     set shellxquote  &
 endfunction
 
-function! s:powershell()
+function! shell#powershell()
     let &shell        = 'powershell'
     let &shellcmdflag = '-NoLogo -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new();$PSDefaultParameterValues[''Out-File:Encoding'']=''utf8'';'
     let &shellredir   = '2>&1 | %%{ "$_" } | Out-File %s; exit $LastExitCode'
@@ -28,7 +28,7 @@ function! s:powershell()
     let &shellxquote  = ''
 endfunction
 
-function! s:pwsh()
+function! shell#pwsh()
     let &shell        = executable('pwsh') ? 'pwsh' : 'powershell'
     let &shellcmdflag = '-NoLogo -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new();$PSDefaultParameterValues[''Out-File:Encoding'']=''utf8'';'
     let &shellredir   = '2>&1 | %%{ "$_" } | Out-File %s; exit $LastExitCode'
@@ -37,7 +37,7 @@ function! s:pwsh()
     let &shellxquote  = ''
 endfunction
 
-function! s:cmd()
+function! shell#cmd()
     let &shell        = 'cmd'
     let &shellcmdflag = '/s /c'
     let &shellredir   = '>%s 2>&1'
@@ -47,18 +47,18 @@ function! s:cmd()
 endfunction
 
 let s:configs = {
-            \   'cmd'        : function('s:cmd')
-            \ , 'pwsh'       : function('s:pwsh')
-            \ , 'powershell' : function('s:powershell')
+            \   'cmd'        : function('shell#cmd')
+            \ , 'pwsh'       : function('shell#pwsh')
+            \ , 'powershell' : function('shell#powershell')
             \}
 
-function! s:listshells(ArgLead, CmdLine, CursorPos)
+function! shell#listshells(ArgLead, CmdLine, CursorPos)
     return keys(s:configs)
 endfunction
 
-function! s:setshell(shell = '')
+function! shell#setshell(shell = '')
     if a:shell == ''
-        call s:default()
+        call shell#default()
     elseif has_key(s:configs, a:shell)
         call s:configs[a:shell]()
     else
@@ -66,11 +66,12 @@ function! s:setshell(shell = '')
     endif
 endfunction
 
-function! shell_vim#init()
-    command! -bang Powershell call s:powershell() <bar> call s:print('<bang>')
-    command! -bang Pwsh       call s:pwsh()       <bar> call s:print('<bang>') 
-    command! -bang Cmd        call s:cmd()        <bar> call s:print('<bang>') 
-    command! -bang -nargs=? -complete=customlist,s:listshells
+function! shell#init()
+    command! -bang ShellPrint call shell#print('<bang>')
+    command! -bang SetShellPowershell call shell#powershell() <bar>ShellPrint<bang>
+    command! -bang SetShellPwsh       call shell#pwsh()       <bar>ShellPrint<bang>
+    command! -bang SetShellCmd        call shell#cmd()        <bar>ShellPrint<bang>
+    command! -bang -nargs=? -complete=customlist,shell#listshells
                 \ SetShell
-                \ call s:setshell(<f-args>) <bar> call s:print('<bang>')
+                \ call shell#setshell(<f-args>) <bar>ShellPrint<bang>
 endfunction
