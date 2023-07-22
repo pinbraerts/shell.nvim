@@ -44,6 +44,27 @@ function! shell#cmd()
     let &shellxquote  = '"'
 endfunction
 
+function! s:current()
+    return #{ path   : 'shell',
+            \ flag   : 'shellcmdflag',
+            \ redir  : 'shellredir',
+            \ pipe   : 'shellpipe',
+            \ quote  : 'shellquote',
+            \ xquote : 'shellxquote',
+            \}->map('execute("echo &"..v:val)[1:]')
+endfunction
+
+let g:shell_custom_configuration = s:current()
+
+function! shell#custom(configuration = g:shell_custom_configuration)
+    let &shell        = a:configuration.path
+    let &shellcmdflag = a:configuration.flag
+    let &shellredir   = a:configuration.redir
+    let &shellpipe    = a:configuration.pipe
+    let &shellquote   = a:configuration.quote
+    let &shellxquote  = a:configuration.xquote
+endfunction
+
 let g:shell_configurations = {}
 
 function! s:list(ArgLead, CmdLine, CursorPos)

@@ -14,24 +14,38 @@ local function split(str, pattern)
     return result
 end
 
+local function get_info(name)
+    local output = split(vim.api.nvim_exec2(
+        name == 'custom' and 'verbose set shell' or 'verbose function shell#'..name,
+        { output = true }
+    ).output, '\n')
+    if #output < 2 then
+        output = split(vim.api.nvim_exec2(
+            'verbose function shell#'..name,
+            { output = true }
+        ).output, '\n')
+    end
+    local info = split(output[2], ' ')
+    return {
+        path = info[4],
+        lnum = info[6],
+    }
+end
+
 local function list_configurations()
     local result = {}
     local index = 1
     for key, _ in pairs(vim.g.shell_configurations) do
-        local name = 'shell#'..key
-        local output = vim.api.nvim_exec2(
-            'verbose function '..name,
-            { output = true }
-        ).output
-        local info = split(output, '\n')
-        local path = split(info[2], ' ')
-        result[index] = {
-            value = vim.fn[name],
-            display = key,
-            ordinal = key,
-            path = path[4],
-            lnum = tonumber(path[6]),
-        }
+        local info = get_info(key)
+        info.lnum = tonumber(info.lnum)
+        result[index] = vim.tbl_extend(
+            'keep', info,
+            {
+                value = vim.fn['shell#'..key],
+                display = key,
+                ordinal = key,
+            }
+        )
         index = index + 1
     end
     return result
@@ -59,6 +73,7 @@ local function picker(options, results)
     })
 end
 
+-- picker({}, list_configurations()):find()
 return require 'telescope'.register_extension {
     exports = {
         configurations = function (options)
