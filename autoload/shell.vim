@@ -1,13 +1,11 @@
-function! shell#print(bang = '')
-    if a:bang != ''
-        return
-    endif
+function! shell#print()
     echo 'let &shell        =' &shell
     echo 'let &shellcmdflag =' &shellcmdflag
     echo 'let &shellredir   =' &shellredir
     echo 'let &shellpipe    =' &shellpipe
     echo 'set shellquote    =' &shellquote
     echo 'set shellxquote   =' &shellxquote
+    return v:false
 endfunction
 
 function! shell#default()
@@ -46,32 +44,42 @@ function! shell#cmd()
     let &shellxquote  = '"'
 endfunction
 
-let s:configs = {
-            \   'cmd'        : function('shell#cmd')
-            \ , 'pwsh'       : function('shell#pwsh')
-            \ , 'powershell' : function('shell#powershell')
-            \}
+let s:configs = {}
 
-function! shell#listshells(ArgLead, CmdLine, CursorPos)
-    return keys(s:configs)
+function! s:list(ArgLead, CmdLine, CursorPos)
+    if a:ArgLead == ''
+        return keys(s:configs)
+    endif
+    return keys(s:configs)->filter('v:val =~ "^'..a:ArgLead..'"')
 endfunction
 
-function! shell#setshell(shell = '')
-    if a:shell == ''
-        call shell#default()
-    elseif has_key(s:configs, a:shell)
-        call s:configs[a:shell]()
+function! shell#list()
+    echo s:list('', '', '')
+    return v:false
+endfunction
+
+function! shell#_set(bang, shell = 'default')
+    if has_key(s:configs, a:shell)
+        let res = s:configs[a:shell]()
+        if a:bang == '' && res == ''
+            call shell#print()
+        endif
     else
         echo 'unknown shell config'
     endif
 endfunction
 
-function! shell#init()
-    command! -bang ShellPrint call shell#print('<bang>')
-    command! -bang SetShellPowershell call shell#powershell() <bar>ShellPrint<bang>
-    command! -bang SetShellPwsh       call shell#pwsh()       <bar>ShellPrint<bang>
-    command! -bang SetShellCmd        call shell#cmd()        <bar>ShellPrint<bang>
-    command! -bang -nargs=? -complete=customlist,shell#listshells
-                \ SetShell
-                \ call shell#setshell(<f-args>) <bar>ShellPrint<bang>
+function! shell#_init()
+    for fsig in execute('function /shell#')->split('\n')
+        let idx = fsig->stridx('(')
+        if idx < 0
+            continue
+        endif
+        let name = fsig[15:fsig->stridx('(')-1]
+        if name[0] == '_'
+            continue
+        endif
+        let s:configs[name] = function('shell#'..name)
+    endfor
+    command! -bang -nargs=? -complete=customlist,s:list Shell call shell#_set('<bang>', <f-args>)
 endfunction
