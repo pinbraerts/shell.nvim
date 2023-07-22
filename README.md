@@ -47,6 +47,18 @@ Shell default
 :Shell print
 ```
 
+## Telescope integration
+
+1) Setup
+```
+require'telescope'.load_extension('shell')
+```
+
+2) Open picker
+```
+require'telescope'.extensions.shell.configurations()
+```
+
 ## Contribution
 
 Add new shell config in autoload/shell.vim
