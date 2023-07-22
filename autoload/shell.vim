@@ -1,10 +1,20 @@
-function! shell#print()
-    echo 'let &shell        =' &shell
-    echo 'let &shellcmdflag =' &shellcmdflag
-    echo 'let &shellredir   =' &shellredir
-    echo 'let &shellpipe    =' &shellpipe
-    echo 'set shellquote    =' &shellquote
-    echo 'set shellxquote   =' &shellxquote
+function! shell#print(which = '')
+    if a:which == ''
+        echo 'let &shell        = "'..&shell       ..'"'
+        echo 'let &shellcmdflag = "'..&shellcmdflag..'"'
+        echo 'let &shellredir   = "'..&shellredir  ..'"'
+        echo 'let &shellpipe    = "'..&shellpipe   ..'"'
+        echo 'let &shellquote   = "'..&shellquote  ..'"'
+        echo 'let &shellxquote  = "'..&shellxquote ..'"'
+    else
+        let info = execute('verbose function shell#'..a:which)->split('\n')
+        echo info[2][7:]
+        echo info[3][7:]
+        echo info[4][7:]
+        echo info[5][7:]
+        echo info[6][7:]
+        echo info[7][7:]
+    endif
     return v:false
 endfunction
 
@@ -89,9 +99,11 @@ function! shell#list()
     return v:false
 endfunction
 
-function! shell#_set(bang, shell = 'default')
+function! shell#_set(bang, shell = 'default', which = v:null)
     if has_key(g:shell_configurations, a:shell)
-        let res = g:shell_configurations[a:shell]()
+        let res = a:which == v:null
+                    \? g:shell_configurations[a:shell]()
+                    \: g:shell_configurations[a:shell](a:which)
         if a:bang == '' && res == ''
             call shell#print()
         endif
@@ -112,5 +124,6 @@ function! shell#_init()
         endif
         let g:shell_configurations[name] = function('shell#'..name)
     endfor
-    command! -bang -nargs=? -complete=customlist,s:list Shell call shell#_set('<bang>', <f-args>)
+    command! -bang -nargs=* -complete=customlist,s:list Shell call shell#_set('<bang>', <f-args>)
 endfunction
+call shell#_init()
