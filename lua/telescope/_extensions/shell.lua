@@ -38,7 +38,7 @@ local function list_configurations()
 end
 
 local function picker(options, results)
-    return pickers.new(options or {}, {
+    return pickers.new(options, {
         propmpt_title = 'Shell configurations',
         finder = finders.new_table {
             results = results,
@@ -62,7 +62,7 @@ end
 return require 'telescope'.register_extension {
     exports = {
         configurations = function (options)
-            picker(options, list_configurations()):find()
+            picker(options or {}, list_configurations()):find()
         end
     },
 }
