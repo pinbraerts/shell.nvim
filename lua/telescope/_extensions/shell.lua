@@ -70,7 +70,7 @@ local function picker(options, results)
         sorter = config.generic_sorter(options),
         attach_mappings = function (prompt_bufnr, map)
             map({ 'i', 'n' }, '<c-]>', actions.select_default)
-            map('n', '<cr>', function ()
+            map({ 'i', 'n' }, '<cr>', function ()
                 actions.close(prompt_bufnr)
                 local selection = state.get_selected_entry()
                 selection.value()
