@@ -1,5 +1,4 @@
 # shell.vim
-## Description
 Collection of shell configs for vim
 
 ## Installation
@@ -10,9 +9,22 @@ use 'pinbraerts/shell.vim'
 ```
 
 - [vim-plug](https://github.com/junegunn/vim-plug)
-```vim
+```lua
 Plug 'pinbraerts/shell.vim'
 ```
+
+## Telescope integration
+
+1) Setup
+```lua
+require'telescope'.load_extension('shell')
+```
+
+2) Open picker
+```lua
+require'telescope'.extensions.shell.configurations()
+```
+
 
 ## Usage
 
@@ -24,7 +36,7 @@ Plug 'pinbraerts/shell.vim'
 or
 
 ```
-Shell default
+:Shell default
 ```
 
 - Change shell
@@ -32,7 +44,8 @@ Shell default
 :Shell powershell
 ```
 
-- Silently switch shells
+or silent
+
 ```
 :Shell! pwsh
 ```
@@ -47,22 +60,10 @@ Shell default
 :Shell print
 ```
 
-## Telescope integration
-
-1) Setup
-```
-require'telescope'.load_extension('shell')
-```
-
-2) Open picker
-```
-require'telescope'.extensions.shell.configurations()
-```
-
 ## Contribution
 
-Add new shell config in autoload/shell.vim
-```
+Add new shell config in [autoload/shell.vim](https://github.com/pinbraerts/shell.vim/blob/main/autoload/shell.vim)
+```viml
 function! shell#config_name()
     let &shell        = 'shell_executable'
     let &shellcmdflag = 'launch flags'
@@ -73,5 +74,5 @@ function! shell#config_name()
 endfunction
 ```
 
-it will be automatically added to `s:configs` dictionary
+it will be automatically added to `g:shell_configurations` dictionary
  
