@@ -15,6 +15,12 @@ local function split(str, pattern)
 end
 
 local function get_info(name)
+    if name == 'custom' and vim.g.shell_custom_configuration.file then
+        return {
+            path = vim.g.shell_custom_configuration.file,
+            lnum = vim.g.shell_custom_configuration.line,
+        }
+    end
     local output = split(vim.api.nvim_exec2(
         name == 'custom' and 'verbose set shell' or 'verbose function shell#'..name,
         { output = true }
@@ -62,8 +68,9 @@ local function picker(options, results)
         },
         previewer = config.grep_previewer(options),
         sorter = config.generic_sorter(options),
-        attach_mappings = function (prompt_bufnr, _)
-            actions.select_default:replace(function ()
+        attach_mappings = function (prompt_bufnr, map)
+            map({ 'i', 'n' }, '<c-]>', actions.select_default)
+            map('n', '<cr>', function ()
                 actions.close(prompt_bufnr)
                 local selection = state.get_selected_entry()
                 selection.value()
@@ -73,7 +80,6 @@ local function picker(options, results)
     })
 end
 
--- picker({}, list_configurations()):find()
 return require 'telescope'.register_extension {
     exports = {
         configurations = function (options)

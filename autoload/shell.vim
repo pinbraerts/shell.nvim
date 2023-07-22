@@ -44,6 +44,15 @@ function! shell#cmd()
     let &shellxquote  = '"'
 endfunction
 
+function! s:info()
+    let info = execute('verbose set shell')->split('\n')
+    if len(info) < 2
+        return { }
+    endif
+    let info = info[1]->split(' ')
+    return #{ file : info[3], line : info[5] }
+endfunction
+
 function! s:current()
     return #{ path   : 'shell',
             \ flag   : 'shellcmdflag',
@@ -52,6 +61,7 @@ function! s:current()
             \ quote  : 'shellquote',
             \ xquote : 'shellxquote',
             \}->map('execute("echo &"..v:val)[1:]')
+            \->extend(s:info())
 endfunction
 
 let g:shell_custom_configuration = s:current()
