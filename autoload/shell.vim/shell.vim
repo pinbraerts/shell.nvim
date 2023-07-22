@@ -66,7 +66,7 @@ function! s:setshell(shell = '')
     endif
 endfunction
 
-function! s:init()
+function! shell_vim#init()
     command! -bang Powershell call s:powershell() <bar> call s:print('<bang>')
     command! -bang Pwsh       call s:pwsh()       <bar> call s:print('<bang>') 
     command! -bang Cmd        call s:cmd()        <bar> call s:print('<bang>') 
@@ -74,9 +74,3 @@ function! s:init()
                 \ SetShell
                 \ call s:setshell(<f-args>) <bar> call s:print('<bang>')
 endfunction
-
-if v:vim_did_enter
-    call s:init()
-else
-    au VimEnter * call s:init()
-endif
