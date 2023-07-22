@@ -44,13 +44,13 @@ function! shell#cmd()
     let &shellxquote  = '"'
 endfunction
 
-let s:configs = {}
+let g:shell_configurations = {}
 
 function! s:list(ArgLead, CmdLine, CursorPos)
     if a:ArgLead == ''
-        return keys(s:configs)
+        return keys(g:shell_configurations)
     endif
-    return keys(s:configs)->filter('v:val =~ "^'..a:ArgLead..'"')
+    return keys(g:shell_configurations)->filter('v:val =~ "^'..a:ArgLead..'"')
 endfunction
 
 function! shell#list()
@@ -59,8 +59,8 @@ function! shell#list()
 endfunction
 
 function! shell#_set(bang, shell = 'default')
-    if has_key(s:configs, a:shell)
-        let res = s:configs[a:shell]()
+    if has_key(g:shell_configurations, a:shell)
+        let res = g:shell_configurations[a:shell]()
         if a:bang == '' && res == ''
             call shell#print()
         endif
@@ -79,7 +79,7 @@ function! shell#_init()
         if name[0] == '_'
             continue
         endif
-        let s:configs[name] = function('shell#'..name)
+        let g:shell_configurations[name] = function('shell#'..name)
     endfor
     command! -bang -nargs=? -complete=customlist,s:list Shell call shell#_set('<bang>', <f-args>)
 endfunction
