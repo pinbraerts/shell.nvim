@@ -5,6 +5,8 @@ function! shell#print()
     echo 'let &shellpipe    =' &shellpipe
     echo 'let &shellquote   =' &shellquote
     echo 'let &shellxquote  =' &shellxquote
+    echo 'let &shellxescape =' &shellxquote
+    echo 'let &shellslash   =' &shellslash
     return v:false
 endfunction
 
@@ -15,6 +17,8 @@ function! shell#default()
     set shellpipe    &
     set shellquote   &
     set shellxquote  &
+    set shellxescape &
+    set shellslash   &
 endfunction
 
 function! shell#powershell()
@@ -24,6 +28,8 @@ function! shell#powershell()
     let &shellpipe    = '2>&1 | %%{ "$_" } | Tee-Object %s; exit $LastExitCode'
     let &shellquote   = ''
     let &shellxquote  = ''
+    let &shellxescape = ''
+    let &shellslash   = 0
 endfunction
 
 function! shell#pwsh()
@@ -33,6 +39,8 @@ function! shell#pwsh()
     let &shellpipe    = '2>&1 | %%{ "$_" } | Tee-Object %s; exit $LastExitCode'
     let &shellquote   = ''
     let &shellxquote  = ''
+    let &shellxescape = ''
+    let &shellslash   = 0
 endfunction
 
 function! shell#cmd()
@@ -42,6 +50,30 @@ function! shell#cmd()
     let &shellpipe    = '2>&1| tee'
     let &shellquote   = ''
     let &shellxquote  = '"'
+    let &shellxescape = ''
+    let &shellslash   = 0
+endfunction
+
+function! shell#sh()
+    let &shell        = 'sh'
+    let &shellcmdflag = '-c'
+    let &shellredir   = '>%s 2>&1'
+    let &shellpipe    = '2>&1| tee'
+    let &shellquote   = ''
+    let &shellxquote  = ''
+    let &shellxescape = ''
+    let &shellslash   = 1
+endfunction
+
+function! shell#bash()
+    let &shell        = 'bash'
+    let &shellcmdflag = '-c'
+    let &shellredir   = '>%s 2>&1'
+    let &shellpipe    = '2>&1| tee'
+    let &shellquote   = ''
+    let &shellxquote  = ''
+    let &shellxescape = ''
+    let &shellslash   = 1
 endfunction
 
 function! shell#list()

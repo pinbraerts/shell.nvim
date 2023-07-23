@@ -28,6 +28,8 @@ let s:default = #{ shell   : '',
             \ shellpipe    : '',
             \ shellquote   : '',
             \ shellxquote  : '',
+            \ shellxescape : '',
+            \ shellslash   : '',
             \}
 
 let g:shell = {}
