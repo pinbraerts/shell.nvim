@@ -3,8 +3,8 @@ function! shell#print()
     echo 'let &shellcmdflag =' &shellcmdflag
     echo 'let &shellredir   =' &shellredir
     echo 'let &shellpipe    =' &shellpipe
-    echo 'set shellquote    =' &shellquote
-    echo 'set shellxquote   =' &shellxquote
+    echo 'let &shellquote   =' &shellquote
+    echo 'let &shellxquote  =' &shellxquote
     return v:false
 endfunction
 
@@ -44,73 +44,12 @@ function! shell#cmd()
     let &shellxquote  = '"'
 endfunction
 
-function! s:info()
-    let info = execute('verbose set shell')->split('\n')
-    if len(info) < 2
-        return { }
-    endif
-    let info = info[1]->split(' ')
-    return #{ file : info[3], line : info[5] }
-endfunction
-
-function! s:current()
-    return #{ path   : 'shell',
-            \ flag   : 'shellcmdflag',
-            \ redir  : 'shellredir',
-            \ pipe   : 'shellpipe',
-            \ quote  : 'shellquote',
-            \ xquote : 'shellxquote',
-            \}->map('execute("echo &"..v:val)[1:]')
-            \->extend(s:info())
-endfunction
-
-let g:shell_custom_configuration = s:current()
-
-function! shell#custom(configuration = g:shell_custom_configuration)
-    let &shell        = a:configuration.path
-    let &shellcmdflag = a:configuration.flag
-    let &shellredir   = a:configuration.redir
-    let &shellpipe    = a:configuration.pipe
-    let &shellquote   = a:configuration.quote
-    let &shellxquote  = a:configuration.xquote
-endfunction
-
-let g:shell_configurations = {}
-
-function! s:list(ArgLead, CmdLine, CursorPos)
-    if a:ArgLead == ''
-        return keys(g:shell_configurations)
-    endif
-    return keys(g:shell_configurations)->filter('v:val =~ "^'..a:ArgLead..'"')
-endfunction
-
 function! shell#list()
-    echo s:list('', '', '')
+    for name in keys(g:shell.configurations)
+        echo name
+    endfor
     return v:false
 endfunction
 
-function! shell#_set(bang, shell = 'default')
-    if has_key(g:shell_configurations, a:shell)
-        let res = g:shell_configurations[a:shell]()
-        if a:bang == '' && res == ''
-            call shell#print()
-        endif
-    else
-        echo 'unknown shell config'
-    endif
-endfunction
-
-function! shell#_init()
-    for fsig in execute('function /shell#')->split('\n')
-        let idx = fsig->stridx('(')
-        if idx < 0
-            continue
-        endif
-        let name = fsig[15:fsig->stridx('(')-1]
-        if name[0] == '_'
-            continue
-        endif
-        let g:shell_configurations[name] = function('shell#'..name)
-    endfor
-    command! -bang -nargs=? -complete=customlist,s:list Shell call shell#_set('<bang>', <f-args>)
+function! shell#_load()
 endfunction
