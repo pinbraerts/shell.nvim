@@ -76,6 +76,10 @@ function! shell#config_name()
     let &shellpipe    = 'pipe options'
     let &shellquote   = 'quote around the command excluding redirection'
     let &shellxquote  = 'quote around the command including redirection'
+    let &shellxescape = 'chars to escape if shellxquote is ('
+    let &shellslash   = 0
+    " change the direction of slashes for windows (for Unix-like shell)
+    " be careful, setting shellslash could break packer
 endfunction
 ```
 
