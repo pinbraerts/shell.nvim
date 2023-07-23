@@ -32,6 +32,7 @@ let s:default = #{ shell   : '',
 let g:shell = {}
 let g:shell.loaded = 1
 let g:shell.configurations = {}
+let g:shell.selected = 'default'
 if len(s:definition(s:default))
     function! shell#custom(configuration)
         for key in keys(s:default)
@@ -40,6 +41,7 @@ if len(s:definition(s:default))
             endif
         endfor
     endfunction
+    let g:shell.selected = 'custom'
 endif
 
 function! s:set(bang, shell = 'default', ...)
@@ -50,6 +52,7 @@ function! s:set(bang, shell = 'default', ...)
                     \: configuration.value()
         if a:bang == '' && res == ''
             call shell#print()
+            let g:shell.selected = a:shell
         endif
     else
         echo 'unknown shell config'

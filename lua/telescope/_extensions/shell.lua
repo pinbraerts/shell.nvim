@@ -3,14 +3,30 @@ local pickers = require 'telescope.pickers'
 local finders = require 'telescope.finders'
 local actions = require 'telescope.actions'
 local state   = require 'telescope.actions.state'
+local display = require 'telescope.pickers.entry_display'
 
-local function list_configurations()
+local displayer = display.create {
+    separator = ' ',
+    items = {
+        { width = 1 },
+        { remainig = true },
+    },
+}
+
+local function make_displayer(entry)
+    return displayer {
+        { entry.selected and '*' or ' ' },
+        { entry.name, 'TelescopeResultsIdentifier', },
+    }
+end
+
+local function list()
     local result = {}
     local index = 1
     for key, value in pairs(vim.g.shell.configurations) do
         value.value = vim.fn['shell#'..key]
         result[index] = vim.tbl_extend('force', value, {
-            display = value.name,
+            display = make_displayer,
             ordinal = key,
         })
         index = index + 1
@@ -24,6 +40,7 @@ local function picker(options, results)
         finder = finders.new_table {
             results = results,
             entry_maker = function (entry)
+                entry.selected = vim.g.shell.selected == entry.ordinal
                 return entry
             end
         },
@@ -34,10 +51,11 @@ local function picker(options, results)
             map({ 'i', 'n' }, '<cr>', function ()
                 actions.close(prompt_bufnr)
                 local selection = state.get_selected_entry()
-                if selection.self then
-                    selection.value(selection)
-                else
-                    selection.value()
+                local res = selection.self == 1 and selection.value(selection) or selection.value()
+                if res ~= false then
+                    local shell = vim.g.shell
+                    shell.selected = selection.ordinal
+                    vim.g.shell = shell
                 end
             end)
             return true
@@ -48,7 +66,7 @@ end
 return require 'telescope'.register_extension {
     exports = {
         configurations = function (options)
-            picker(options or {}, list_configurations()):find()
+            picker(options or {}, list()):find()
         end
     },
 }
