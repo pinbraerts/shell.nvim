@@ -24,11 +24,17 @@ local function list()
     local result = {}
     local index = 1
     for key, value in pairs(vim.g.shell.configurations) do
-        value.value = vim.fn['shell#'..key]
-        result[index] = vim.tbl_extend('force', value, {
+        value.value = vim.fn[value.value]
+        value.selected = vim.g.shell.selected == key
+        value = vim.tbl_extend('force', value, {
             display = make_displayer,
             ordinal = key,
         })
+        if value.selected then
+            result = vim.list_extend({ value }, result)
+        else
+            result[index] = value
+        end
         index = index + 1
     end
     return result
@@ -39,10 +45,7 @@ local function picker(options, results)
         propmpt_title = 'Shell configurations',
         finder = finders.new_table {
             results = results,
-            entry_maker = function (entry)
-                entry.selected = vim.g.shell.selected == entry.ordinal
-                return entry
-            end
+            entry_maker = function (entry) return entry end
         },
         previewer = config.grep_previewer(options),
         sorter = config.generic_sorter(options),

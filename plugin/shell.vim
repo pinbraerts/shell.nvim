@@ -12,6 +12,7 @@ function! s:definition(symbol, request = 'function')
                 endif
             endif
         endfor
+        return {}
     endif
     let info = execute('verbose '..a:request..' '..a:symbol)->split('\n')
     if len(info) < 2
@@ -47,9 +48,8 @@ endif
 function! s:set(bang, shell = 'default', ...)
     if g:shell.configurations->has_key(a:shell)
         let configuration = g:shell.configurations[a:shell]
-        let res = configuration->has_key('self') && configuration.self
-                    \? configuration.value->call([configuration]->extend(a:000))
-                    \: configuration.value()
+        let Func = function(configuration.value)
+        let res = call(Func, configuration->has_key('self') && configuration.self ? [configuration]->extend(a:000) : [])
         if a:bang == '' && res == ''
             call shell#print()
             let g:shell.selected = a:shell
@@ -76,7 +76,7 @@ function! s:init()
         let name = fsig[9:index-1]
         let short = name[6:]
         let g:shell.configurations[short] = s:definition(name)
-        let g:shell.configurations[short].value = function(name)
+        let g:shell.configurations[short].value = name
         let g:shell.configurations[short].name = short
         let g:shell.configurations[short].self = fsig[index+1] != ')'
     endfor
