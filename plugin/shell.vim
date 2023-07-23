@@ -1,5 +1,5 @@
 if exists('g:shell')
-    " finish
+    finish
 endif
 
 function! s:definition(symbol, request = 'function')
