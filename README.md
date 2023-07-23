@@ -29,34 +29,34 @@ require'telescope'.extensions.shell.configurations()
 ## Usage
 
 - Restore default options
-```
+```viml
 :Shell
 ```
 
 or
 
-```
+```viml
 :Shell default
 ```
 
 - Change shell
-```
+```viml
 :Shell powershell
 ```
 
 or silent
 
-```
+```viml
 :Shell! pwsh
 ```
 
 - List all shells
-```
+```viml
 :Shell list
 ```
 
 - Print current configuration
-```
+```viml
 :Shell print
 ```
 
