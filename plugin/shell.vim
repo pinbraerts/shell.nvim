@@ -2,11 +2,11 @@ if exists('g:shell')
     finish
 endif
 
-function! s:definition(symbol, request = 'function')
+function! s:definition(symbol)
     if type(a:symbol) == v:t_dict
         for name in keys(a:symbol)
             if exists('&'..name)
-                let info = s:definition(name, 'set')
+                let info = s:definition('set '..name..'?')
                 if len(info)
                     return info
                 endif
@@ -14,7 +14,8 @@ function! s:definition(symbol, request = 'function')
         endfor
         return {}
     endif
-    let info = execute('verbose '..a:request..' '..a:symbol)->split('\n')
+    let info = 'verbose '..a:symbol
+    let info = execute(info)->split('\n')
     if len(info) < 2
         return {}
     endif
@@ -77,7 +78,7 @@ function! s:init()
         endif
         let name = fsig[9:index-1]
         let short = name[6:]
-        let g:shell.configurations[short] = s:definition(name)
+        let g:shell.configurations[short] = s:definition('function '..name)
         let g:shell.configurations[short].value = name
         let g:shell.configurations[short].name = short
         let g:shell.configurations[short].self = fsig[index+1] != ')'
