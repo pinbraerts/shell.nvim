@@ -60,6 +60,11 @@ or silent
 :Shell print
 ```
 
+- Restore custom configuration (set in vimrc before)
+```viml
+:Shell custom
+```
+
 ## Contribution
 
 Add new shell config in [autoload/shell.vim](https://github.com/pinbraerts/shell.vim/blob/main/autoload/shell.vim)
@@ -74,5 +79,5 @@ function! shell#config_name()
 endfunction
 ```
 
-it will be automatically added to `g:shell_configurations` dictionary
+it will be automatically added to `g:shell.configurations` dictionary
  
